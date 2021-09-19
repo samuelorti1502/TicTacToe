@@ -1,7 +1,12 @@
 package formularios;
 
+import clases.CuentaRegresiva;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -20,19 +25,24 @@ public class FrmJuego implements ActionListener {
     Random random = new Random();
     JFrame frame = new JFrame();
     JPanel title_panel = new JPanel();
+    JPanel cuenta_panel = new JPanel();
     JPanel game_panel;
     JLabel texto = new JLabel();
+    JLabel cuenta = new JLabel();
     JButton[] buttons = new JButton[9];
     boolean jugador1;
-    
+
     private JMenu menu;
     private JMenuItem m1;
-    
+
     private String turn, modo;
-    private int  dia, mes, año, hora, minuto, segundo;
+    private int dia, mes, año, hora, minuto, segundo;
 
     public FrmJuego() {
-
+        
+        CuentaRegresiva tiempo = new CuentaRegresiva();
+        //tiempo.timer();
+        
         game_panel = new JPanel();
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -47,9 +57,19 @@ public class FrmJuego implements ActionListener {
         texto.setHorizontalAlignment(JLabel.CENTER);
         texto.setText("UMG TIC TAC TOE GAME 1.0");
         texto.setOpaque(true);
+        
+        cuenta.setBackground(new Color(23, 112, 166));
+        cuenta.setForeground(new Color(255, 255, 255));
+        cuenta.setFont(new Font("Ink Free", Font.BOLD, 45));
+        cuenta.setHorizontalAlignment(JLabel.CENTER);
+        tiempo.timer(cuenta);
+        cuenta.setOpaque(true);
 
         title_panel.setLayout(new BorderLayout());
         title_panel.setBounds(0, 0, 800, 100);
+        
+        cuenta_panel.setLayout(new BorderLayout());
+        cuenta_panel.setBounds(0, 0, 800, 100);
 
         game_panel.setLayout(new GridLayout(3, 3));
         game_panel.setBackground(new Color(150, 150, 150));
@@ -61,7 +81,7 @@ public class FrmJuego implements ActionListener {
             buttons[i].setFocusable(false);
             buttons[i].addActionListener(this);
         }
-        
+
         // <editor-fold defaultstate="collapsed" desc="Menu">
         JMenuBar menuBar = new JMenuBar();
         menu = new JMenu("Archivo");
@@ -74,14 +94,17 @@ public class FrmJuego implements ActionListener {
         // </editor-fold>
 
         title_panel.add(texto);
-        frame.add(title_panel, BorderLayout.NORTH);
-        frame.add(game_panel);
+        cuenta_panel.add(cuenta);
         
+        frame.add(title_panel, BorderLayout.NORTH);
+        frame.add(cuenta_panel, BorderLayout.SOUTH);
+        frame.add(game_panel);
+
         frame.setLocationRelativeTo(null);
 
         turnoUno();
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
 
@@ -89,8 +112,15 @@ public class FrmJuego implements ActionListener {
             if (e.getSource() == buttons[i]) {
                 if (jugador1) {
                     if (buttons[i].getText() == "") {
-                        buttons[i].setForeground(new Color(255, 0, 0));
-                        buttons[i].setText("X");
+                        if (getModo() == "HvH") {
+                            buttons[i].setForeground(new Color(255, 0, 0));
+                            buttons[i].setText("X");
+                        } else {
+                            int r = random.nextInt(10);
+                            System.out.println(r);
+                            buttons[r].setForeground(new Color(255, 0, 0));
+                            buttons[r].setText("X");
+                        }
                         jugador1 = false;
                         //texto.setText("Turno de O");
                         check();
@@ -98,8 +128,15 @@ public class FrmJuego implements ActionListener {
                     //check();
                 } else {
                     if (buttons[i].getText() == "") {
-                        buttons[i].setForeground(new Color(0, 0, 255));
-                        buttons[i].setText("O");
+                        if (getModo() == "HvH") {
+                            buttons[i].setForeground(new Color(0, 0, 255));
+                            buttons[i].setText("O");
+                        } else {
+                            int r = random.nextInt(10);
+                            System.out.println(r);
+                            buttons[r].setForeground(new Color(0, 0, 255));
+                            buttons[r].setText("O");
+                        }
                         jugador1 = true;
                         //texto.setText("Turno de X");
                         check();
@@ -107,9 +144,9 @@ public class FrmJuego implements ActionListener {
                 }
             }
         }
-        
+
         if (e.getSource() == m1) {
-            System.out.println("Hola estadisticas");
+
         }
     }
 
@@ -137,63 +174,78 @@ public class FrmJuego implements ActionListener {
             switch (a) {
                 case 0:
                     line = buttons[0].getText() + buttons[1].getText() + buttons[2].getText();
-                    aa = 0; b = 1; c = 2;
+                    aa = 0;
+                    b = 1;
+                    c = 2;
                     break;
                 case 1:
                     line = buttons[3].getText() + buttons[4].getText() + buttons[5].getText();
-                    aa = 3; b = 4; c = 5;
+                    aa = 3;
+                    b = 4;
+                    c = 5;
                     break;
                 case 2:
                     line = buttons[6].getText() + buttons[7].getText() + buttons[8].getText();
-                    aa = 6; b = 7; c = 8;
+                    aa = 6;
+                    b = 7;
+                    c = 8;
                     break;
                 case 3:
                     line = buttons[0].getText() + buttons[3].getText() + buttons[6].getText();
-                    aa = 0; b = 3; c = 6;
+                    aa = 0;
+                    b = 3;
+                    c = 6;
                     break;
                 case 4:
                     line = buttons[1].getText() + buttons[4].getText() + buttons[7].getText();
-                    aa = 1; b = 4; c = 7;
+                    aa = 1;
+                    b = 4;
+                    c = 7;
                     break;
                 case 5:
                     line = buttons[2].getText() + buttons[5].getText() + buttons[8].getText();
-                    aa = 2; b = 5; c = 8;
+                    aa = 2;
+                    b = 5;
+                    c = 8;
                     break;
                 case 6:
                     line = buttons[0].getText() + buttons[4].getText() + buttons[8].getText();
-                    aa = 0; b = 4; c = 8;
+                    aa = 0;
+                    b = 4;
+                    c = 8;
                     break;
                 case 7:
                     line = buttons[2].getText() + buttons[4].getText() + buttons[6].getText();
-                    aa = 2; b = 4; c = 6;
+                    aa = 2;
+                    b = 4;
+                    c = 6;
                     break;
             }
             //For X winner
             if (line.equals("XXX")) {
-                ganaX(aa,b,c);
+                ganaX(aa, b, c);
                 estadisticas("X");
                 return "X";
             } // For O winner
             else if (line.equals("OOO")) {
-                ganaO(aa,b,c);
+                ganaO(aa, b, c);
                 estadisticas("O");
                 return "O";
             }
         }
-        
+
         for (int a = 0; a < 9; a++) {
             if (Arrays.asList(buttons).contains(
                     String.valueOf(a + 1))) {
                 break;
-            }
-            else if (a == 8) {
+            } else if (a == 8) {
                 return "draw";
             }
         }
-        
+
         System.out.println(
-            turn + "'s turn; enter a slot number to place "
-            + turn + " in:");
+                turn + "'s turn; enter a slot number to place "
+                + turn + " in:");
         return null;
     }
 
@@ -221,32 +273,51 @@ public class FrmJuego implements ActionListener {
         JOptionPane.showMessageDialog(null, "Gano 0");
 
     }
-    
-    public void modo(String modo){
+
+    public void modo(String modo) {
         setModo(modo);
     }
-    
-    public void estadisticas(String ganador){
+
+    public void estadisticas(String ganador) {
         String hora = hora();
-        Date objDate = new Date(); 
-        
-        System.out.println(objDate); 
-        String strDateFormat = "yyyymmddhhmmss"; // El formato de fecha está especificado  
+        Date objDate = new Date();
+
+        System.out.println(objDate);
+        String strDateFormat = "dd/mm/yyyy hh:mm:ss"; // El formato de fecha está especificado  
         SimpleDateFormat objSDF = new SimpleDateFormat(strDateFormat); // La cadena de formato de fecha se pasa como un argumento al objeto 
-        
+
         System.out.println("El ganador fue " + ganador + "en modo " + getModo() + " " + objSDF.format(objDate));
+
+        try {
+            File file = new File("historial.txt");
+
+            FileWriter archivo = new FileWriter(file.getAbsoluteFile(), true);
+            String texto = "El ganador fue " + ganador + " en modo " + getModo() + " " + objSDF.format(objDate) + "\n";
+
+            PrintWriter imprimir = new PrintWriter(archivo);
+            imprimir.print(texto);
+
+            archivo.close();
+        } catch (IOException ex) {
+            Logger.getLogger(FrmJuego.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
-    public String hora(){
+    private void limpiarBtn() {        
+        for (JButton btn : buttons) 
+            btn.setText("");
+    }
+
+    public String hora() {
         Calendar calendario = Calendar.getInstance();
         setHora(calendario.get(Calendar.HOUR_OF_DAY));
         setMinuto(calendario.get(Calendar.MINUTE));
         setSegundo(calendario.get(Calendar.SECOND));
-        
+
         String hr;
         hr = null;
 
-        hr = (getHora()<=9?"0"+getHora():getHora()) + ":" + (getMinuto()<=9?"0"+getMinuto():getMinuto()) + ":" + (getSegundo()<=9?"0"+getSegundo():getSegundo());
+        hr = (getHora() <= 9 ? "0" + getHora() : getHora()) + ":" + (getMinuto() <= 9 ? "0" + getMinuto() : getMinuto()) + ":" + (getSegundo() <= 9 ? "0" + getSegundo() : getSegundo());
         return hr;
     }
 
